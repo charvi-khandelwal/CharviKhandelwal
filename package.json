@@ -1,5 +1,6 @@
 {
   "name": "charvi-portfolio",
+  "homepage": "https://kswork2001.github.io/CharviKhandelwal/",
   "private": true,
   "version": "0.0.0",
   "type": "module",
@@ -11,6 +12,7 @@
   },
   "dependencies": {
     "framer-motion": "^12.26.1",
+    "gh-pages": "^6.3.0",
     "lucide-react": "^0.562.0",
     "react": "^19.2.0",
     "react-dom": "^19.2.0"
