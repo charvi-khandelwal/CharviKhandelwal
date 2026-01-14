@@ -1,4 +1,4 @@
-import { useEffect, useMemo, useRef, useState } from 'react'
+import { useCallback, useEffect, useMemo, useRef, useState } from 'react'
 import {
   AnimatePresence,
   motion,
@@ -16,8 +16,10 @@ import {
   Linkedin,
   LineChart,
   Mail,
+  Moon,
   Phone,
   Sparkles,
+  Sun,
   Telescope,
   TrendingDown,
   TrendingUp,
@@ -95,7 +97,7 @@ function Sparkline({ data, up }) {
   )
 }
 
-function CursorGlow() {
+function CursorGlow({ theme }) {
   const x = useMotionValue(0)
   const y = useMotionValue(0)
 
@@ -108,7 +110,8 @@ function CursorGlow() {
     return () => window.removeEventListener('mousemove', onMove)
   }, [x, y])
 
-  const bg = useMotionTemplate`radial-gradient(700px circle at ${x}px ${y}px, rgba(128, 0, 0, 0.22), transparent 55%)`
+  const accent = theme === 'light' ? 'rgba(128, 0, 0, 0.16)' : 'rgba(128, 0, 0, 0.22)'
+  const bg = useMotionTemplate`radial-gradient(700px circle at ${x}px ${y}px, ${accent}, transparent 55%)`
 
   return (
     <motion.div
@@ -119,15 +122,15 @@ function CursorGlow() {
   )
 }
 
-function Nav({ sections, activeId, onNavigate }) {
+function Nav({ sections, activeId, onNavigate, theme, onToggleTheme }) {
   return (
     <div className="fixed left-0 right-0 top-0 z-50 px-4 pt-4">
       <div className="mx-auto max-w-6xl">
-        <div className="rounded-2xl border border-uchicago-maroon/20 bg-black/30 backdrop-blur-xl shadow-glow">
+        <div className="rounded-2xl border glass-panel shadow-glow backdrop-blur-xl">
           <div className="flex items-center justify-between px-4 py-3 md:px-5">
             <button
               onClick={() => onNavigate('home')}
-              className="group inline-flex items-center gap-2 rounded-xl px-2 py-1 text-sm font-semibold text-white/90 transition hover:bg-uchicago-maroon/10"
+              className="group inline-flex items-center gap-2 rounded-xl px-2 py-1 text-sm font-semibold text-theme-secondary transition hover:bg-accent-pill"
               type="button"
             >
               <span className="tracking-tight">Charvi Khandelwal</span>
@@ -139,13 +142,13 @@ function Nav({ sections, activeId, onNavigate }) {
                   key={s.id}
                   type="button"
                   onClick={() => onNavigate(s.id)}
-                  className="relative rounded-xl px-3 py-2 text-sm text-white/70 transition hover:bg-uchicago-maroon/10 hover:text-white"
+                  className="relative rounded-xl px-3 py-2 text-sm text-theme-muted transition hover:bg-accent-pill hover:text-theme-primary"
                 >
                   <span className="relative z-10">{s.label}</span>
                   {activeId === s.id ? (
                     <motion.span
                       layoutId="navPill"
-                      className="absolute inset-0 rounded-xl bg-uchicago-maroon/25"
+                      className="absolute inset-0 rounded-xl bg-accent-pill-strong"
                       transition={{ type: 'spring', stiffness: 420, damping: 32 }}
                     />
                   ) : null}
@@ -154,15 +157,29 @@ function Nav({ sections, activeId, onNavigate }) {
             </div>
 
             <div className="flex items-center gap-2">
+              <button
+                type="button"
+                onClick={onToggleTheme}
+                className="inline-flex items-center gap-2 rounded-xl border tinted-button px-3 py-2 text-xs font-semibold transition"
+              >
+                {theme === 'dark' ? (
+                  <Sun className="h-4 w-4 icon-muted" />
+                ) : (
+                  <Moon className="h-4 w-4 icon-muted" />
+                )}
+                <span className="hidden sm:inline">
+                  {theme === 'dark' ? 'Light mode' : 'Dark mode'}
+                </span>
+              </button>
               <a
-                className="inline-flex items-center gap-2 rounded-xl border border-uchicago-maroon/30 bg-uchicago-maroon/10 px-3 py-2 text-sm text-white/90 transition hover:bg-uchicago-maroon/20"
+                className="inline-flex items-center gap-2 rounded-xl border tinted-button px-3 py-2 text-sm font-semibold text-theme-secondary transition"
                 href="#contact"
                 onClick={(e) => {
                   e.preventDefault()
                   onNavigate('contact')
                 }}
               >
-                <Mail className="h-4 w-4" />
+                <Mail className="h-4 w-4 icon-muted" />
                 <span className="hidden sm:inline">Contact</span>
               </a>
             </div>
@@ -185,11 +202,11 @@ function Section({ id, eyebrow, title, children }) {
       >
         <div className="mb-8">
           {eyebrow ? (
-            <div className="mb-2 text-xs font-semibold uppercase tracking-[0.2em] text-white/50">
+            <div className="mb-2 text-xs font-semibold uppercase tracking-[0.2em] text-theme-subtle">
               {eyebrow}
             </div>
           ) : null}
-          <h2 className="text-2xl font-semibold tracking-tight text-white md:text-3xl">
+          <h2 className="text-2xl font-semibold tracking-tight text-theme-primary md:text-3xl">
             {title}
           </h2>
         </div>
@@ -236,7 +253,7 @@ function TiltCard({ children, className = '' }) {
         sy.set(0)
       }}
       style={{ rotateX, rotateY, transformStyle: 'preserve-3d' }}
-      className={`relative rounded-2xl border border-uchicago-maroon/20 bg-black/30 p-5 shadow-glow transition ${className}`}
+      className={`relative rounded-2xl border border-theme-soft bg-panel p-5 text-theme-primary shadow-glow transition ${className}`}
     >
       <motion.div
         aria-hidden="true"
@@ -250,10 +267,12 @@ function TiltCard({ children, className = '' }) {
   )
 }
 
-function Chip({ children, icon: Icon }) {
+function Chip({ children, icon: Icon, className = '' }) {
   return (
-    <span className="inline-flex items-center gap-2 rounded-full border border-uchicago-maroon/30 bg-uchicago-maroon/10 px-3 py-1 text-xs font-medium text-white/85">
-      {Icon ? <Icon className="h-3.5 w-3.5 text-white/70" /> : null}
+    <span
+      className={`chip inline-flex items-center gap-2 rounded-full px-3 py-1 text-xs font-medium ${className}`}
+    >
+      {Icon ? <Icon className="h-3.5 w-3.5 icon-muted" /> : null}
       {children}
     </span>
   )
@@ -275,6 +294,31 @@ function App() {
   const [activeId, setActiveId] = useState('home')
   const [expanded, setExpanded] = useState(null)
   const [copied, setCopied] = useState(false)
+  const appliedTheme = useRef('dark')
+  const hydrateTheme = useCallback(() => {
+    if (typeof document === 'undefined') return 'dark'
+    return document.documentElement.dataset.theme === 'light' ? 'light' : 'dark'
+  }, [])
+  const [theme, setTheme] = useState(() => {
+    if (typeof window === 'undefined') return 'dark'
+    const stored = window.localStorage?.getItem('ck-theme')
+    if (stored === 'dark' || stored === 'light') return stored
+    return window.matchMedia('(prefers-color-scheme: dark)').matches ? 'dark' : 'light'
+  })
+  const toggleTheme = useCallback(() => {
+    setTheme((prev) => (prev === 'dark' ? 'light' : 'dark'))
+  }, [])
+
+  useEffect(() => {
+    if (typeof document === 'undefined') return
+    document.documentElement.dataset.theme = theme
+    window.localStorage?.setItem('ck-theme', theme)
+    appliedTheme.current = theme
+  }, [theme])
+
+  useEffect(() => {
+    appliedTheme.current = hydrateTheme()
+  }, [hydrateTheme])
 
   useEffect(() => {
     const els = sections.map((s) => document.getElementById(s.id)).filter(Boolean)
@@ -431,8 +475,8 @@ function App() {
 
   return (
     <div className="relative min-h-screen">
-      <CursorGlow />
-      <Nav sections={sections} activeId={activeId} onNavigate={onNavigate} />
+      <CursorGlow theme={theme} />
+      <Nav sections={sections} activeId={activeId} onNavigate={onNavigate} theme={theme} onToggleTheme={toggleTheme} />
 
       <div className="absolute inset-x-0 top-0 -z-20 h-[720px] bg-[radial-gradient(80%_60%_at_50%_0%,rgba(128,0,0,0.22),transparent_70%),radial-gradient(65%_55%_at_80%_15%,rgba(161,27,31,0.18),transparent_70%),radial-gradient(75%_55%_at_10%_10%,rgba(118,118,118,0.14),transparent_70%)]" />
 
@@ -445,9 +489,9 @@ function App() {
                   initial={{ opacity: 0, y: 16 }}
                   animate={{ opacity: 1, y: 0 }}
                   transition={{ duration: 0.7, ease: 'easeOut' }}
-                  className="inline-flex items-center gap-2 rounded-full border border-uchicago-maroon/30 bg-uchicago-maroon/10 px-3 py-1 text-xs font-semibold text-white/85"
+                  className="chip inline-flex items-center gap-2 rounded-full px-3 py-1 text-xs font-semibold"
                 >
-                  <GraduationCap className="h-4 w-4 text-white/70" />
+                  <GraduationCap className="h-4 w-4 icon-muted" />
                   Econ + Astrophysics @ University of Chicago
                 </motion.div>
 
@@ -455,7 +499,7 @@ function App() {
                   initial={{ opacity: 0, y: 16 }}
                   animate={{ opacity: 1, y: 0 }}
                   transition={{ duration: 0.7, ease: 'easeOut', delay: 0.06 }}
-                  className="mt-5 text-4xl font-semibold tracking-tight text-white sm:text-5xl"
+                  className="mt-5 text-4xl font-semibold tracking-tight text-theme-primary sm:text-5xl"
                 >
                   Building clarity from complex systems—
                   <span className="bg-gradient-to-r from-uchicago-maroonLight to-uchicago-maroon bg-clip-text text-transparent">
@@ -467,7 +511,7 @@ function App() {
                   initial={{ opacity: 0, y: 16 }}
                   animate={{ opacity: 1, y: 0 }}
                   transition={{ duration: 0.7, ease: 'easeOut', delay: 0.12 }}
-                  className="mt-4 max-w-xl text-base leading-relaxed text-white/70"
+                  className="mt-4 max-w-xl text-base leading-relaxed text-theme-muted"
                 >
                   I’m Charvi—an Economics & Astrophysics student pairing quantitative reasoning with strategic
                   finance work. From venture scouting to sell-side mandates, I love uncovering insights, shaping
@@ -486,7 +530,7 @@ function App() {
                       e.preventDefault()
                       onNavigate('contact')
                     }}
-                    className="group inline-flex items-center gap-2 rounded-xl bg-uchicago-maroon px-4 py-2 text-sm font-semibold text-white transition hover:bg-uchicago-maroonLight"
+                    className="primary-button group inline-flex items-center gap-2 rounded-xl px-4 py-2 text-sm font-semibold"
                   >
                     Let’s connect
                     <ArrowUpRight className="h-4 w-4 transition group-hover:-translate-y-0.5 group-hover:translate-x-0.5" />
@@ -494,7 +538,7 @@ function App() {
                   <button
                     type="button"
                     onClick={() => onNavigate('about')}
-                    className="inline-flex items-center gap-2 rounded-xl border border-uchicago-maroon/30 bg-uchicago-maroon/10 px-4 py-2 text-sm font-semibold text-white/90 transition hover:bg-uchicago-maroon/20"
+                    className="tinted-button inline-flex items-center gap-2 rounded-xl border px-4 py-2 text-sm font-semibold"
                   >
                     Explore
                     <ChevronDown className="h-4 w-4" />
@@ -518,61 +562,56 @@ function App() {
                 <TiltCard className="p-6">
                   <div className="flex items-start justify-between gap-6">
                     <div>
-                      <div className="text-sm font-semibold text-white/85">Focus</div>
-                      <div className="mt-1 text-2xl font-semibold tracking-tight text-white">
+                      <div className="text-sm font-semibold text-theme-secondary">Focus</div>
+                      <div className="mt-1 text-2xl font-semibold tracking-tight text-theme-primary">
                         Investment Banking
                       </div>
-                      <div className="mt-2 text-sm leading-relaxed text-white/70">
+                      <div className="mt-2 text-sm leading-relaxed text-theme-muted">
                         I love high-ownership work, sharp narratives, and turning messy data into clear
                         decisions.
                       </div>
                     </div>
-                    <div className="rounded-2xl border border-uchicago-maroon/30 bg-uchicago-maroon/10 p-3">
-                      <Linkedin className="h-6 w-6 text-white/70" />
+                    <div className="rounded-2xl border border-theme-soft bg-panel p-3">
+                      <Linkedin className="h-6 w-6 icon-muted" />
                     </div>
                   </div>
 
                   <div className="mt-6 grid gap-3 sm:grid-cols-2">
-                    <div className="rounded-2xl border border-uchicago-maroon/20 bg-black/20 p-4">
-                      <div className="text-xs font-semibold uppercase tracking-[0.18em] text-white/50">
+                    <div className="rounded-2xl border border-theme-soft bg-layer p-4">
+                      <div className="text-xs font-semibold uppercase tracking-[0.18em] text-theme-subtle">
                         Studies
                       </div>
-                      <div className="mt-2 text-sm font-semibold text-white/85">
+                      <div className="mt-2 text-sm font-semibold text-theme-secondary">
                         Economics + Astrophysics
                       </div>
-                      <div className="mt-1 text-sm text-white/60">University of Chicago</div>
+                      <div className="mt-1 text-sm text-theme-muted">University of Chicago</div>
                     </div>
-                    <div className="rounded-2xl border border-uchicago-maroon/20 bg-black/20 p-4">
-                      <div className="text-xs font-semibold uppercase tracking-[0.18em] text-white/50">
+                    <div className="rounded-2xl border border-theme-soft bg-layer p-4">
+                      <div className="text-xs font-semibold uppercase tracking-[0.18em] text-theme-subtle">
                         Strengths
                       </div>
-                      <div className="mt-2 text-sm font-semibold text-white/85">Analysis • Research</div>
-                      <div className="mt-1 text-sm text-white/60">Fast learning, clear communication</div>
+                      <div className="mt-2 text-sm font-semibold text-theme-secondary">Analysis • Research</div>
+                      <div className="mt-1 text-sm text-theme-muted">Fast learning, clear communication</div>
                     </div>
                   </div>
 
-                  <div className="mt-5 rounded-2xl border border-uchicago-maroon/20 bg-black/20 p-4">
+                  <div className="mt-5 rounded-2xl border border-theme-soft bg-layer p-4">
                     <div className="flex items-center justify-between gap-3">
                       <div>
-                        <div className="text-xs font-semibold uppercase tracking-[0.18em] text-white/50">
+                        <div className="text-xs font-semibold uppercase tracking-[0.18em] text-theme-subtle">
                           Portfolio
                         </div>
-                        <div className="mt-2 text-sm font-semibold text-white/85">
+                        <div className="mt-2 text-sm font-semibold text-theme-secondary">
                           {projects.length} positions
                         </div>
                       </div>
-                      <div className="rounded-xl border border-uchicago-maroon/30 bg-uchicago-maroon/10 p-2">
-                        <LineChart className="h-5 w-5 text-white/70" />
+                      <div className="rounded-xl border border-theme-soft bg-panel p-2">
+                        <LineChart className="h-5 w-5 icon-muted" />
                       </div>
                     </div>
                     <div className="mt-3 flex flex-wrap gap-2">
                       {quotes.map((q) => (
-                        <span
-                          key={q.symbol}
-                          className="rounded-full border border-uchicago-maroon/30 bg-uchicago-maroon/10 px-3 py-1 text-xs font-semibold text-white/85"
-                        >
-                          {q.symbol}
-                        </span>
+                        <Chip key={q.symbol}>{q.symbol}</Chip>
                       ))}
                     </div>
                   </div>
@@ -585,12 +624,12 @@ function App() {
         <Section id="about" eyebrow="About" title="A finance-forward mindset with a scientific edge">
           <div className="grid gap-6 md:grid-cols-2">
             <TiltCard>
-              <div className="text-sm leading-relaxed text-white/70">
+              <div className="text-sm leading-relaxed text-theme-muted">
                 Rising junior at the University of Chicago studying Economics & Astrophysics (Dean’s List). I
                 bring mathematical modeling, research discipline, and people-focused leadership from Emory,
                 SEO, and Pioneer Academics.
               </div>
-              <div className="mt-4 text-sm leading-relaxed text-white/70">
+              <div className="mt-4 text-sm leading-relaxed text-theme-muted">
                 I thrive when big questions need structured thinking—breaking down diligence, market mapping,
                 or storytelling into crisp deliverables that help clients decide faster.
               </div>
@@ -598,12 +637,12 @@ function App() {
             <div className="grid gap-4">
               <TiltCard>
                 <div className="flex items-start gap-3">
-                  <div className="rounded-xl border border-uchicago-maroon/30 bg-uchicago-maroon/10 p-2">
-                    <BriefcaseBusiness className="h-5 w-5 text-white/70" />
+                  <div className="rounded-xl border border-theme-soft bg-panel p-2">
+                    <BriefcaseBusiness className="h-5 w-5 icon-muted" />
                   </div>
                   <div>
-                    <div className="text-sm font-semibold text-white/85">Why finance</div>
-                    <div className="mt-1 text-sm text-white/70">
+                    <div className="text-sm font-semibold text-theme-secondary">Why finance</div>
+                    <div className="mt-1 text-sm text-theme-muted">
                       I’m drawn to fast-paced environments that reward precision, ownership, and sharp
                       thinking.
                     </div>
@@ -612,12 +651,12 @@ function App() {
               </TiltCard>
               <TiltCard>
                 <div className="flex items-start gap-3">
-                  <div className="rounded-xl border border-uchicago-maroon/30 bg-uchicago-maroon/10 p-2">
-                    <Telescope className="h-5 w-5 text-white/70" />
+                  <div className="rounded-xl border border-theme-soft bg-panel p-2">
+                    <Telescope className="h-5 w-5 icon-muted" />
                   </div>
                   <div>
-                    <div className="text-sm font-semibold text-white/85">Why astrophysics</div>
-                    <div className="mt-1 text-sm text-white/70">
+                    <div className="text-sm font-semibold text-theme-secondary">Why astrophysics</div>
+                    <div className="mt-1 text-sm text-theme-muted">
                       It trains rigorous reasoning: modeling, validating assumptions, and staying calm in
                       uncertainty.
                     </div>
@@ -642,28 +681,28 @@ function App() {
                   >
                     <div className="flex items-start justify-between gap-6">
                       <div className="flex items-start gap-3">
-                        <div className="rounded-xl border border-uchicago-maroon/30 bg-uchicago-maroon/10 p-2">
-                          <Icon className="h-5 w-5 text-white/70" />
+                        <div className="rounded-xl border tinted-button p-2">
+                          <Icon className="h-5 w-5 icon-muted" />
                         </div>
                         <div>
-                          <div className="text-sm font-semibold text-white/85">{item.title}</div>
-                          <div className="mt-1 text-sm text-white/60">{item.org}</div>
+                          <div className="text-sm font-semibold text-theme-secondary">{item.title}</div>
+                          <div className="mt-1 text-sm text-theme-subtle">{item.org}</div>
                         </div>
                       </div>
-                      <div className="text-xs font-semibold uppercase tracking-[0.18em] text-white/50">
+                      <div className="text-xs font-semibold uppercase tracking-[0.18em] text-theme-subtle">
                         {item.time}
                       </div>
                     </div>
 
                     <div className="mt-4 grid gap-2">
                       {item.bullets.map((b) => (
-                        <div key={b} className="text-sm text-white/70">
+                        <div key={b} className="text-sm text-theme-muted">
                           {b}
                         </div>
                       ))}
                     </div>
 
-                    <div className="mt-4 inline-flex items-center gap-2 text-sm font-semibold text-white/70">
+                    <div className="mt-4 inline-flex items-center gap-2 text-sm font-semibold text-theme-muted">
                       <span>{isOpen ? 'Hide details' : 'View details'}</span>
                       <motion.span
                         animate={{ rotate: isOpen ? 180 : 0 }}
@@ -684,7 +723,7 @@ function App() {
                         transition={{ duration: 0.28, ease: 'easeOut' }}
                         className="overflow-hidden"
                       >
-                        <div className="px-5 pb-5 text-sm leading-relaxed text-white/70">
+                        <div className="px-5 pb-5 text-sm leading-relaxed text-theme-muted">
                           {item.details}
                         </div>
                       </motion.div>
@@ -712,17 +751,15 @@ function App() {
                 <TiltCard key={p.title}>
                   <div className="flex items-start justify-between gap-3">
                     <div>
-                      <div className="text-sm font-semibold text-white/85">{p.title}</div>
-                      <div className="mt-2 text-sm text-white/70">{p.desc}</div>
+                      <div className="text-sm font-semibold text-theme-secondary">{p.title}</div>
+                      <div className="mt-2 text-sm text-theme-muted">{p.desc}</div>
                     </div>
-                    <span className="rounded-full border border-uchicago-maroon/30 bg-uchicago-maroon/10 px-2 py-1 text-xs font-semibold text-white/80">
-                      {p.tag}
-                    </span>
+                    <Chip className="px-2 py-1 text-xs font-semibold">{p.tag}</Chip>
                   </div>
 
                   <div className="mt-5 flex items-end justify-between gap-4">
                     <div>
-                      <div className="text-xs font-semibold uppercase tracking-[0.18em] text-white/50">
+                      <div className="text-xs font-semibold uppercase tracking-[0.18em] text-theme-subtle">
                         {q?.symbol ?? makeSymbol(p.title)}
                       </div>
                       <div className="mt-1 flex items-baseline gap-2">
@@ -731,7 +768,7 @@ function App() {
                           initial={{ opacity: 0, y: 6 }}
                           animate={{ opacity: 1, y: 0 }}
                           transition={{ duration: 0.25 }}
-                          className="text-xl font-semibold tracking-tight text-white"
+                          className="text-xl font-semibold tracking-tight text-theme-primary"
                         >
                           ${formatPrice(price)}
                         </motion.div>
@@ -754,7 +791,7 @@ function App() {
                     </div>
                   </div>
 
-                  <div className="mt-4 inline-flex items-center gap-2 text-sm font-semibold text-white/70">
+                  <div className="mt-4 inline-flex items-center gap-2 text-sm font-semibold text-theme-muted">
                     <span>Open position</span>
                     <ArrowUpRight className="h-4 w-4" />
                   </div>
@@ -770,7 +807,7 @@ function App() {
               <motion.span
                 key={s}
                 whileHover={{ y: -2 }}
-                className="rounded-full border border-uchicago-maroon/30 bg-uchicago-maroon/10 px-3 py-2 text-sm font-semibold text-white/85"
+                className="chip inline-flex items-center rounded-full px-3 py-2 text-sm font-semibold"
               >
                 {s}
               </motion.span>
@@ -781,12 +818,12 @@ function App() {
         <Section id="contact" eyebrow="Contact" title="Say hello">
           <div className="grid gap-6 md:grid-cols-2">
             <TiltCard>
-              <div className="text-sm leading-relaxed text-white/70">
+              <div className="text-sm leading-relaxed text-theme-muted">
                 For opportunities, collaborations, or a quick chat—reach out anytime.
               </div>
               <div className="mt-5 grid gap-3">
                 <a
-                  className="inline-flex items-center justify-between gap-3 rounded-xl border border-uchicago-maroon/30 bg-uchicago-maroon/10 px-4 py-3 text-sm font-semibold text-white/90 transition hover:bg-uchicago-maroon/20"
+                  className="inline-flex items-center justify-between gap-3 rounded-xl border tinted-button px-4 py-3 text-sm font-semibold transition"
                   href="tel:+14705549895"
                 >
                   <span className="inline-flex items-center gap-2">
@@ -796,7 +833,7 @@ function App() {
                   <ArrowUpRight className="h-4 w-4" />
                 </a>
                 <a
-                  className="inline-flex items-center justify-between gap-3 rounded-xl border border-uchicago-maroon/30 bg-uchicago-maroon/10 px-4 py-3 text-sm font-semibold text-white/90 transition hover:bg-uchicago-maroon/20"
+                  className="inline-flex items-center justify-between gap-3 rounded-xl border tinted-button px-4 py-3 text-sm font-semibold transition"
                   href="mailto:charvii.khandelwal@gmail.com"
                 >
                   <span className="inline-flex items-center gap-2">
@@ -806,7 +843,7 @@ function App() {
                   <ArrowUpRight className="h-4 w-4" />
                 </a>
                 <a
-                  className="inline-flex items-center justify-between gap-3 rounded-xl border border-uchicago-maroon/30 bg-uchicago-maroon/10 px-4 py-3 text-sm font-semibold text-white/90 transition hover:bg-uchicago-maroon/20"
+                  className="inline-flex items-center justify-between gap-3 rounded-xl border tinted-button px-4 py-3 text-sm font-semibold transition"
                   href="https://www.linkedin.com/in/charvi-khandelwal-uchicago"
                   target="_blank"
                   rel="noreferrer"
@@ -820,8 +857,8 @@ function App() {
               </div>
             </TiltCard>
             <TiltCard>
-              <div className="text-sm font-semibold text-white/85">Quick action</div>
-              <div className="mt-2 text-sm text-white/70">
+              <div className="text-sm font-semibold text-theme-secondary">Quick action</div>
+              <div className="mt-2 text-sm text-theme-muted">
                 Copy email to clipboard (instant feedback).
               </div>
               <div className="mt-4 flex items-center gap-3">
@@ -836,7 +873,7 @@ function App() {
                       setCopied(false)
                     }
                   }}
-                  className="inline-flex items-center gap-2 rounded-xl bg-uchicago-maroon px-4 py-2 text-sm font-semibold text-white transition hover:bg-uchicago-maroonLight"
+                  className="primary-button inline-flex items-center gap-2 rounded-xl px-4 py-2 text-sm font-semibold"
                 >
                   <Copy className="h-4 w-4" />
                   Copy email
@@ -847,14 +884,14 @@ function App() {
                       initial={{ opacity: 0, y: 8 }}
                       animate={{ opacity: 1, y: 0 }}
                       exit={{ opacity: 0, y: 8 }}
-                      className="text-sm font-semibold text-white/80"
+                      className="text-sm font-semibold text-theme-secondary"
                     >
                       Copied
                     </motion.div>
                   ) : null}
                 </AnimatePresence>
               </div>
-              <div className="mt-6 text-xs text-white/50">
+              <div className="mt-6 text-xs text-theme-subtle">
                 Swap the placeholder email/links with her real details when ready.
               </div>
             </TiltCard>
@@ -862,7 +899,7 @@ function App() {
         </Section>
 
         <footer className="px-4 pb-12">
-          <div className="mx-auto max-w-6xl border-t border-uchicago-maroon/20 pt-6 text-sm text-white/50">
+          <div className="mx-auto max-w-6xl border-t border-theme-soft pt-6 text-sm text-theme-subtle">
             © {new Date().getFullYear()} Charvi Khandelwal
           </div>
         </footer>
