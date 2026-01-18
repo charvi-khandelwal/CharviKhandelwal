@@ -285,6 +285,7 @@ function App() {
       { id: 'about', label: 'About' },
       { id: 'experience', label: 'Experience' },
       { id: 'projects', label: 'Projects' },
+      { id: 'poetry', label: 'Poetry' },
       { id: 'skills', label: 'Skills' },
       { id: 'contact', label: 'Contact' },
     ],
@@ -423,6 +424,19 @@ function App() {
         title: 'Cross-Border Capital Dashboard',
         tag: 'Finance',
         desc: 'DIFC dashboard scenario-testing currency, liquidity, and regulatory risk for institutional portfolios.',
+      },
+    ],
+    [],
+  )
+
+  const poetryBooks = useMemo(
+    () => [
+      {
+        title: 'Fluttering Freedoms',
+        coverSrc: `${import.meta.env.BASE_URL}book_cover1.jpg`,
+        url: 'https://www.amazon.com/Fluttering-Freedoms-Charvi-Amit-Khandelwal/dp/B0CTGMTCCM',
+        description:
+          'The media shows us. We believe. The internet reports verified data. We trust. Politicians purposefully incite us. We become polarised, divided. We are the puppets played on strings. We must arise to be better than this. Fluttering Freedoms will be a breath of fresh air from the polluting influences of today’s world. I encourage you to think. To analyze. To mentally debate. Before you blindly believe anything. Ever again.',
       },
     ],
     [],
@@ -808,6 +822,47 @@ function App() {
                 </TiltCard>
               )
             })}
+          </div>
+        </Section>
+
+        <Section id="poetry" eyebrow="Poetry" title="Books I’ve written">
+          <div className="grid gap-6 md:grid-cols-2">
+            {poetryBooks.map((book) => (
+              <TiltCard key={book.title} className="p-0">
+                <a
+                  href={book.url}
+                  target="_blank"
+                  rel="noreferrer"
+                  className="block rounded-2xl p-5"
+                >
+                  <div className="grid gap-5 sm:grid-cols-[180px_1fr] sm:items-start">
+                    <div className="rounded-2xl border border-theme-soft bg-layer p-2">
+                      <img
+                        src={book.coverSrc}
+                        alt={`${book.title} book cover`}
+                        className="aspect-[2/3] w-full rounded-xl object-cover"
+                        loading="lazy"
+                        decoding="async"
+                      />
+                    </div>
+
+                    <div>
+                      <div className="text-sm font-semibold uppercase tracking-[0.18em] text-theme-subtle">
+                        Poetry
+                      </div>
+                      <div className="mt-2 text-2xl font-semibold tracking-tight text-theme-primary">
+                        {book.title}
+                      </div>
+                      <div className="mt-3 text-sm leading-relaxed text-theme-muted">{book.description}</div>
+                      <div className="mt-4 inline-flex items-center gap-2 text-sm font-semibold text-theme-muted">
+                        <span>View on Amazon</span>
+                        <ArrowUpRight className="h-4 w-4" />
+                      </div>
+                    </div>
+                  </div>
+                </a>
+              </TiltCard>
+            ))}
           </div>
         </Section>
 
