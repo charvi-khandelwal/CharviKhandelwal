@@ -195,10 +195,10 @@ function Section({ id, eyebrow, title, children }) {
     <section id={id} className="scroll-mt-24 px-4 py-16 md:py-20">
       <motion.div
         className="mx-auto max-w-6xl"
-        initial={{ opacity: 0, y: 18 }}
-        whileInView={{ opacity: 1, y: 0 }}
+        initial={{ opacity: 0, y: 22, filter: 'blur(6px)' }}
+        whileInView={{ opacity: 1, y: 0, filter: 'blur(0px)' }}
         viewport={{ once: true, amount: 0.22 }}
-        transition={{ duration: 0.6, ease: 'easeOut' }}
+        transition={{ duration: 0.65, ease: 'easeOut' }}
       >
         <div className="mb-8">
           {eyebrow ? (
@@ -303,7 +303,8 @@ function App() {
     if (typeof window === 'undefined') return 'dark'
     const stored = window.localStorage?.getItem('ck-theme')
     if (stored === 'dark' || stored === 'light') return stored
-    return window.matchMedia('(prefers-color-scheme: dark)').matches ? 'dark' : 'light'
+    const hour = new Date().getHours()
+    return hour >= 19 || hour < 6 ? 'dark' : 'light'
   })
   const toggleTheme = useCallback(() => {
     setTheme((prev) => (prev === 'dark' ? 'light' : 'dark'))
@@ -559,63 +560,72 @@ function App() {
                 className="relative"
               >
                 <div className="absolute -inset-2 -z-10 rounded-3xl bg-gradient-to-br from-uchicago-maroon/25 via-uchicago-maroonLight/20 to-uchicago-gray/20 blur-xl" />
-                <TiltCard className="p-6">
-                  <div className="flex items-start justify-between gap-6">
-                    <div>
-                      <div className="text-sm font-semibold text-theme-secondary">Focus</div>
-                      <div className="mt-1 text-2xl font-semibold tracking-tight text-theme-primary">
-                        Investment Banking
-                      </div>
-                      <div className="mt-2 text-sm leading-relaxed text-theme-muted">
-                        I love high-ownership work, sharp narratives, and turning messy data into clear
-                        decisions.
-                      </div>
-                    </div>
-                    <div className="rounded-2xl border border-theme-soft bg-panel p-3">
-                      <Linkedin className="h-6 w-6 icon-muted" />
+                <div className="flex flex-col items-center gap-3">
+                  <div className="relative">
+                    <div className="absolute -inset-2 -z-10 rounded-full bg-gradient-to-br from-uchicago-maroon/25 via-uchicago-maroonLight/20 to-uchicago-gray/20 blur-xl" />
+                    <div className="rounded-full border border-theme-soft bg-panel p-1 shadow-glow">
+                      <img
+                        src={`${import.meta.env.BASE_URL}headshot.jpg`}
+                        alt="Headshot"
+                        className="h-40 w-40 rounded-full object-cover"
+                        loading="lazy"
+                        decoding="async"
+                      />
                     </div>
                   </div>
-
-                  <div className="mt-6 grid gap-3 sm:grid-cols-2">
-                    <div className="rounded-2xl border border-theme-soft bg-layer p-4">
-                      <div className="text-xs font-semibold uppercase tracking-[0.18em] text-theme-subtle">
-                        Studies
-                      </div>
-                      <div className="mt-2 text-sm font-semibold text-theme-secondary">
-                        Economics + Astrophysics
-                      </div>
-                      <div className="mt-1 text-sm text-theme-muted">University of Chicago</div>
-                    </div>
-                    <div className="rounded-2xl border border-theme-soft bg-layer p-4">
-                      <div className="text-xs font-semibold uppercase tracking-[0.18em] text-theme-subtle">
-                        Strengths
-                      </div>
-                      <div className="mt-2 text-sm font-semibold text-theme-secondary">Analysis • Research</div>
-                      <div className="mt-1 text-sm text-theme-muted">Fast learning, clear communication</div>
-                    </div>
-                  </div>
-
-                  <div className="mt-5 rounded-2xl border border-theme-soft bg-layer p-4">
-                    <div className="flex items-center justify-between gap-3">
+                  <TiltCard className="w-full p-4">
+                    <div className="flex items-start justify-between gap-5">
                       <div>
+                        <div className="text-sm font-semibold text-theme-secondary">Focus</div>
+                        <div className="mt-1 text-xl font-semibold tracking-tight text-theme-primary">
+                          Investment Banking
+                        </div>
+                        <div className="mt-1.5 text-sm leading-relaxed text-theme-muted">
+                          I love high-ownership work, sharp narratives, and turning messy data into clear
+                          decisions.
+                        </div>
+                      </div>
+                      <div className="rounded-2xl border border-theme-soft bg-panel p-3">
+                        <Linkedin className="h-6 w-6 icon-muted" />
+                      </div>
+                    </div>
+
+                    <div className="mt-4 grid gap-3 sm:grid-cols-2">
+                      <div className="rounded-2xl border border-theme-soft bg-layer p-3">
                         <div className="text-xs font-semibold uppercase tracking-[0.18em] text-theme-subtle">
-                          Portfolio
+                          Studies
                         </div>
                         <div className="mt-2 text-sm font-semibold text-theme-secondary">
-                          {projects.length} positions
+                          Economics + Astrophysics
+                        </div>
+                        <div className="mt-1 text-sm text-theme-muted">University of Chicago</div>
+                      </div>
+                      <div className="rounded-2xl border border-theme-soft bg-layer p-3">
+                        <div className="text-xs font-semibold uppercase tracking-[0.18em] text-theme-subtle">
+                          Strengths
+                        </div>
+                        <div className="mt-2 text-sm font-semibold text-theme-secondary">Analysis • Research</div>
+                        <div className="mt-1 text-sm text-theme-muted">Fast learning, clear communication</div>
+                      </div>
+                    </div>
+
+                    <div className="mt-3 rounded-2xl border border-theme-soft bg-layer p-3">
+                      <div className="flex items-center justify-between gap-3">
+                        <div>
+                          <div className="text-xs font-semibold uppercase tracking-[0.18em] text-theme-subtle">
+                            Portfolio
+                          </div>
+                          <div className="mt-2 text-sm font-semibold text-theme-secondary">
+                            {projects.length} positions
+                          </div>
+                        </div>
+                        <div className="rounded-xl border border-theme-soft bg-panel p-2">
+                          <LineChart className="h-5 w-5 icon-muted" />
                         </div>
                       </div>
-                      <div className="rounded-xl border border-theme-soft bg-panel p-2">
-                        <LineChart className="h-5 w-5 icon-muted" />
-                      </div>
                     </div>
-                    <div className="mt-3 flex flex-wrap gap-2">
-                      {quotes.map((q) => (
-                        <Chip key={q.symbol}>{q.symbol}</Chip>
-                      ))}
-                    </div>
-                  </div>
-                </TiltCard>
+                  </TiltCard>
+                </div>
               </motion.div>
             </div>
           </div>
