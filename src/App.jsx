@@ -438,6 +438,13 @@ function App() {
         description:
           'The media shows us. We believe. The internet reports verified data. We trust. Politicians purposefully incite us. We become polarised, divided. We are the puppets played on strings. We must arise to be better than this. Fluttering Freedoms will be a breath of fresh air from the polluting influences of today’s world. I encourage you to think. To analyze. To mentally debate. Before you blindly believe anything. Ever again.',
       },
+      {
+        title: 'Metamorphosis: Stars of hope in the dark night',
+        coverSrc: `${import.meta.env.BASE_URL}book_cover2.jpg`,
+        url: 'https://www.amazon.com/gp/product/B09QNCY3B7?ref_=dbs_m_mng_rwt_calw_tpbk_0&storeType=ebooks',
+        description:
+          'A fourteen-year-old, struggles against her parents infringing her right to education. Another teenager fights his battles against body image. A girl voices against her comparative lack of freedom. And I face my bout against a judgemental, traditional society. Will we come out of the dark? Will we metamorphose? How will we escape the sea of sharks waiting to snark us at every turn?',
+      },
     ],
     [],
   )
