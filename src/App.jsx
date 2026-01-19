@@ -7,6 +7,7 @@ import {
   useSpring,
   useTransform,
 } from 'framer-motion'
+import { useLocation, useNavigate } from 'react-router-dom'
 import {
   ArrowUpRight,
   BriefcaseBusiness,
@@ -159,6 +160,13 @@ function Nav({ sections, activeId, onNavigate, theme, onToggleTheme }) {
             <div className="flex items-center gap-2">
               <button
                 type="button"
+                onClick={() => onNavigate('/projects')}
+                className="inline-flex items-center gap-2 rounded-xl border tinted-button px-3 py-2 text-sm font-semibold text-theme-secondary transition"
+              >
+                Projects
+              </button>
+              <button
+                type="button"
                 onClick={onToggleTheme}
                 className="inline-flex items-center gap-2 rounded-xl border tinted-button px-3 py-2 text-xs font-semibold transition"
               >
@@ -278,13 +286,46 @@ function Chip({ children, icon: Icon, className = '' }) {
   )
 }
 
+function ProjectsPage({ projects }) {
+  return (
+    <main className="pt-28">
+      <Section id="projects" eyebrow="Projects" title="Let me Finance your interest">
+        <div className="grid auto-rows-[1fr] gap-4 md:grid-cols-6">
+          {projects.map((p, idx) => {
+            const span = idx === 0 ? 'md:col-span-4' : 'md:col-span-3'
+            return (
+              <TiltCard key={p.title} className={`h-full ${span}`}>
+                <div className="flex items-start justify-between gap-3">
+                  <div>
+                    <div className="text-sm font-semibold text-theme-secondary">{p.title}</div>
+                    <div className="mt-2 text-sm text-theme-muted">{p.desc}</div>
+                  </div>
+                  <Chip className="px-2 py-1 text-xs font-semibold">{p.tag}</Chip>
+                </div>
+
+                <div className="mt-4 inline-flex items-center gap-2 text-sm font-semibold text-theme-muted">
+                  <span>Explore</span>
+                  <ArrowUpRight className="h-4 w-4" />
+                </div>
+              </TiltCard>
+            )
+          })}
+        </div>
+      </Section>
+    </main>
+  )
+}
+
 function App() {
+  const location = useLocation()
+  const navigate = useNavigate()
+  const isHome = location.pathname === '/' || location.pathname === ''
+
   const sections = useMemo(
     () => [
       { id: 'home', label: 'Home' },
       { id: 'about', label: 'About' },
       { id: 'experience', label: 'Experience' },
-      { id: 'projects', label: 'Projects' },
       { id: 'poetry', label: 'Poetry' },
       { id: 'skills', label: 'Skills' },
       { id: 'contact', label: 'Contact' },
@@ -323,6 +364,7 @@ function App() {
   }, [hydrateTheme])
 
   useEffect(() => {
+    if (!isHome) return
     const els = sections.map((s) => document.getElementById(s.id)).filter(Boolean)
     if (!els.length) return
 
@@ -342,9 +384,24 @@ function App() {
 
     els.forEach((el) => obs.observe(el))
     return () => obs.disconnect()
-  }, [sections])
+  }, [isHome, sections])
 
   const onNavigate = (id) => {
+    if (typeof id === 'string' && id.startsWith('/')) {
+      navigate(id)
+      return
+    }
+
+    if (!isHome) {
+      navigate('/')
+      window.setTimeout(() => {
+        const el = document.getElementById(id)
+        if (!el) return
+        el.scrollIntoView({ behavior: 'smooth', block: 'start' })
+      }, 0)
+      return
+    }
+
     const el = document.getElementById(id)
     if (!el) return
     el.scrollIntoView({ behavior: 'smooth', block: 'start' })
@@ -498,11 +555,18 @@ function App() {
   return (
     <div className="relative min-h-screen">
       <CursorGlow theme={theme} />
-      <Nav sections={sections} activeId={activeId} onNavigate={onNavigate} theme={theme} onToggleTheme={toggleTheme} />
+      <Nav
+        sections={sections}
+        activeId={isHome ? activeId : null}
+        onNavigate={onNavigate}
+        theme={theme}
+        onToggleTheme={toggleTheme}
+      />
 
       <div className="absolute inset-x-0 top-0 -z-20 h-[720px] bg-[radial-gradient(80%_60%_at_50%_0%,rgba(128,0,0,0.22),transparent_70%),radial-gradient(65%_55%_at_80%_15%,rgba(161,27,31,0.18),transparent_70%),radial-gradient(75%_55%_at_10%_10%,rgba(118,118,118,0.14),transparent_70%)]" />
 
-      <main className="pt-28">
+      {isHome ? (
+        <main className="pt-28">
         <section id="home" className="scroll-mt-24 px-4 pb-10 pt-10 md:pb-14 md:pt-16">
           <div className="mx-auto max-w-6xl">
             <div className="grid items-center gap-10 md:grid-cols-2">
@@ -766,72 +830,6 @@ function App() {
           </div>
         </Section>
 
-        <Section id="projects" eyebrow="Projects" title="Selected work">
-          <div className="grid gap-4 md:grid-cols-3">
-            {projects.map((p, idx) => {
-              const q = quotes[idx]
-              const series = q?.series ?? [100, 101, 99, 103]
-              const price = series[series.length - 1]
-              const prev = series[series.length - 2] ?? price
-              const delta = price - prev
-              const pct = (delta / Math.max(1e-9, prev)) * 100
-              const up = delta >= 0
-              const DeltaIcon = up ? TrendingUp : TrendingDown
-
-              return (
-                <TiltCard key={p.title}>
-                  <div className="flex items-start justify-between gap-3">
-                    <div>
-                      <div className="text-sm font-semibold text-theme-secondary">{p.title}</div>
-                      <div className="mt-2 text-sm text-theme-muted">{p.desc}</div>
-                    </div>
-                    <Chip className="px-2 py-1 text-xs font-semibold">{p.tag}</Chip>
-                  </div>
-
-                  <div className="mt-5 flex items-end justify-between gap-4">
-                    <div>
-                      <div className="text-xs font-semibold uppercase tracking-[0.18em] text-theme-subtle">
-                        {q?.symbol ?? makeSymbol(p.title)}
-                      </div>
-                      <div className="mt-1 flex items-baseline gap-2">
-                        <motion.div
-                          key={`${q?.symbol ?? p.title}:${price.toFixed(4)}`}
-                          initial={{ opacity: 0, y: 6 }}
-                          animate={{ opacity: 1, y: 0 }}
-                          transition={{ duration: 0.25 }}
-                          className="text-xl font-semibold tracking-tight text-theme-primary"
-                        >
-                          ${formatPrice(price)}
-                        </motion.div>
-                        <div
-                          className={`inline-flex items-center gap-1 text-sm font-semibold ${
-                            up ? 'text-emerald-300' : 'text-rose-300'
-                          }`}
-                        >
-                          <DeltaIcon className="h-4 w-4" />
-                          <span>
-                            {up ? '+' : ''}
-                            {pct.toFixed(2)}%
-                          </span>
-                        </div>
-                      </div>
-                    </div>
-
-                    <div className="shrink-0">
-                      <Sparkline data={series.slice(-14)} up={up} />
-                    </div>
-                  </div>
-
-                  <div className="mt-4 inline-flex items-center gap-2 text-sm font-semibold text-theme-muted">
-                    <span>Open position</span>
-                    <ArrowUpRight className="h-4 w-4" />
-                  </div>
-                </TiltCard>
-              )
-            })}
-          </div>
-        </Section>
-
         <Section id="poetry" eyebrow="Poetry" title="Books I’ve written">
           <div className="grid gap-6 md:grid-cols-2">
             {poetryBooks.map((book) => (
@@ -975,7 +973,10 @@ function App() {
             © {new Date().getFullYear()} Charvi Khandelwal
           </div>
         </footer>
-      </main>
+        </main>
+      ) : (
+        <ProjectsPage projects={projects} />
+      )}
     </div>
   )
 }
